@@ -82,7 +82,7 @@ class Order extends AbstractModel
     
     public function _delete($orderIds = [])
     {
-
+        $orderIds             = $this->escapeId($orderIds);
         $orderIds             = '(' . implode(",", $orderIds) . ')';
         $resource             = $this->_modelResource;
         $write                = $resource->getConnection('core_write');
@@ -103,7 +103,9 @@ class Order extends AbstractModel
 	
     public function deteleRelated($orderIds = [])
     {
+
         try {
+            $orderIds = $this->escapeId($orderIds);
 			// Remove Invoice Entry From Invoice Tabel
             $invoices = $this->_invoiceCollection->addFieldToFilter('order_id', ['in', $orderIds]);
             foreach ($invoices as $invoice) $invoice->delete();
@@ -136,6 +138,7 @@ class Order extends AbstractModel
 	
 	public function deleteGridData($orderId,$Tabelname)
 	{
+        $orderId              = $this->escapeId($orderId);
 		$orderId              = '(' . implode(",", $orderId) . ')';
 		$resource             = $this->_modelResource;
 		$write                = $resource->getConnection('core_write');
@@ -153,5 +156,17 @@ class Order extends AbstractModel
 		
 		return true;
 	}
+
+    protected function escapeId($ids)
+    {
+        if (is_array($ids)) {
+            foreach ($ids as $key => $id) {
+                $ids[$key] = (int)$id;
+            }
+        } else {
+            $ids = (int)$ids;
+        }
+        return $ids;
+    }
 
 }
